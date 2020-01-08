@@ -1,3 +1,6 @@
+import traceback
+
+
 def run_instructions(inputs):
     # needs pairs of 4
     index = 0
@@ -12,43 +15,39 @@ def run_instructions(inputs):
         target_index = int(inputs[index + 3])
         source_index_1 = int(inputs[index + 1])
         source_index_2 = int(inputs[index + 2])
-        try:
-            # print(f'actual values to operate on: '
-            #       f'{inputs[source_index_1]} and '
-            #       f'{inputs[source_index_2]}')
-            if int(inputs[index]) == 1:
-                # Opcode 1 adds together numbers
-                inputs[target_index] = \
-                    int(inputs[source_index_1]) + \
-                    int(inputs[source_index_2])
-                # print(f'result of adding is {inputs[target_index]}')
+        # print(f'actual values to operate on: '
+        #       f'{inputs[source_index_1]} and '
+        #       f'{inputs[source_index_2]}')
+        if int(inputs[index]) == 1:
+            # Opcode 1 adds together numbers
+            inputs[target_index] = \
+                int(inputs[source_index_1]) + \
+                int(inputs[source_index_2])
+            # print(f'result of adding is {inputs[target_index]}')
 
-            elif int(inputs[index]) == 2:
-                # Opcode 2 multiplies
-                inputs[target_index] = \
-                    int(inputs[source_index_1]) * \
-                    int(inputs[source_index_2])
-                # print(f'result of multiplying is {inputs[target_index]}')
+        elif int(inputs[index]) == 2:
+            # Opcode 2 multiplies
+            inputs[target_index] = \
+                int(inputs[source_index_1]) * \
+                int(inputs[source_index_2])
+            # print(f'result of multiplying is {inputs[target_index]}')
 
-            elif int(inputs[index]) == 99:
-                # opcode 99 finishes
-                print('halting')
-                print(f'first number: {inputs[0]}')
-                return
-
-            elif index == len(inputs) - 4:
-                # opcodes needs a bundle of 4 to operate
-                pass
-
-            index = index + 4
-        except IndexError:
-            print("instruction set wasn't long enough")
+        elif int(inputs[index]) == 99:
+            # opcode 99 finishes
+            print('halting')
+            print(f'first number: {inputs[0]}')
             return
+
+        elif index == len(inputs) - 4:
+            # opcodes needs a bundle of 4 to operate
+            pass
+
+        index = index + 4
 
 
 with open("input.txt") as f:
-    input_set = f.read().split(",")
-
+    original_input_set = f.read().split(",")
+    input_set = original_input_set[:]
     input_set[1] = 12
     input_set[2] = 2
 
@@ -59,24 +58,31 @@ with open("input.txt") as f:
 
 a = 0
 b = 0
+# reset the input set to the original
+
 while True:
-    with open("input.txt") as f:
-        original_input_set = f.read().split(",")
+    input_set = original_input_set[:]
     while int(input_set[0]) < 19690720:
-        input_set = original_input_set
+        input_set = original_input_set[:]
         input_set[1] = a
         input_set[2] = b
         print(f'running with a: {a} and b: {b}')
-        run_instructions(input_set)
-        if int(input_set[0]) == 19690720:
-            print(f'\n\n\n found the solution: a is {a}, b is {b}\n\n\n')
-            break
-        else:
+        try:
+            run_instructions(input_set)
+            if int(input_set[0]) == 19690720:
+                print(f'---- found the solution: a is {a}, b is {b} ----')
+                break
+            else:
+                a += 1
+        # should have a nicer exception handling though
+        except IndexError:
+            print('ran out of memory')
+            print(traceback.print_exc())
             a += 1
 
     if int(input_set[0]) == 19690720:
-        print(f'\n\n\n found the solution: a is {a}, b is {b}\n\n\n')
         break
 
     a = 0
     b += 1
+
